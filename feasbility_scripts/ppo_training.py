@@ -53,7 +53,7 @@ class RewardLoggingCallback(BaseCallback):
 if __name__ == '__main__':
     n_envs = 1
 
-    scene1_env = r"c:\Users\samhi\scene1_builds\3DPos.exe"
+    scene1_env = r"scene1_builds/3DPos.exe"
     def make_env_scene1(worker_id):
         return lambda: create_env(scene1_env, worker_id, time_scale=1.0, no_graphics=True)
 
@@ -74,14 +74,14 @@ if __name__ == '__main__':
     tensorboard_log_path_scene1 = get_save_path("./logs_graphs", model_name)
     reward_logging_callback_scene1 = RewardLoggingCallback(log_interval=2000, log_file=f'reward_log_{model_name}.txt')
     model = PPO("MlpPolicy", env_scene1, verbose=2, tensorboard_log=tensorboard_log_path_scene1, policy_kwargs=policy_kwargs, learning_rate=3e-4)
-    model.learn(total_timesteps=1000000, reset_num_timesteps=True, tb_log_name="train_scene1", callback=[checkpoint_callback_scene1, reward_logging_callback_scene1])
+    model.learn(total_timesteps=500000, reset_num_timesteps=True, tb_log_name="train_scene1", callback=[checkpoint_callback_scene1, reward_logging_callback_scene1])
     
     final_model_path_scene1 = get_save_path(trained_models_path, model_name, trained_path=True)
     model.save(final_model_path_scene1)
     env_scene1.close()
 
-    scene2_env = r"c:\Users\samhi\scene2_builds\3DPos.exe"
-    env_scene2 = create_env(scene2_env, worker_id=1, time_scale=1.0, no_graphics = False)
+    scene2_env = r"scene2_builds/3DPos.exe"
+    env_scene2 = create_env(scene2_env, worker_id=1, time_scale=1.0, no_graphics = True)
 
     model_name = 'ppo_model_scene2'
     save_path_scene2 = get_save_path(base_path, model_name)
@@ -98,8 +98,8 @@ if __name__ == '__main__':
     model.save(final_model_path_scene2)
     env_scene2.close()
 
-    scene3_env = r"c:\Users\samhi\scene3_builds\3DPos.exe"
-    env_scene3 = create_env(scene3_env, worker_id=2, time_scale=1.0, no_graphics=False)
+    scene3_env = r"scene3_builds/3DPos.exe"
+    env_scene3 = create_env(scene3_env, worker_id=2, time_scale=1.0, no_graphics=True)
 
     model_name = 'ppo_model_scene3'
     save_path_scene3 = get_save_path(base_path, model_name)
