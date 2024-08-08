@@ -10,7 +10,7 @@ from stable_baselines3.common.vec_env import SubprocVecEnv
 import os
 from datetime import datetime
 
-def create_env(env_path, worker_id=3, time_scale=1.0, no_graphics = True):
+def create_env(env_path, worker_id=3, time_scale=2.0, no_graphics = True):
     channel = EngineConfigurationChannel()
     unity_env = UnityEnvironment(env_path, side_channels=[channel], worker_id=worker_id, no_graphics=no_graphics)
     channel.set_configuration_parameters(time_scale=time_scale)
@@ -57,7 +57,7 @@ if __name__ == '__main__':
 
     scene1_env = r"scene1_builds/3DPos.exe"
     def make_env_scene1(worker_id):
-        return lambda: create_env(scene1_env, worker_id, time_scale=1.0, no_graphics=True)
+        return lambda: create_env(scene1_env, worker_id, time_scale=2.0, no_graphics=True)
 
     env_fns_scene1 = [make_env_scene1(i) for i in range(n_envs)]
     env_scene1 = SubprocVecEnv(env_fns_scene1)
@@ -79,7 +79,7 @@ if __name__ == '__main__':
     env_scene1.close()
 
     scene2_env = r"scene2_builds/3DPos.exe"
-    env_scene2 = create_env(scene2_env, worker_id=4, time_scale=1.0, no_graphics=True)
+    env_scene2 = create_env(scene2_env, worker_id=4, time_scale=2.0, no_graphics=True)
 
     model_name = 'sac_model_scene2'
     save_path_scene2 = get_save_path(base_path, model_name)
@@ -97,7 +97,7 @@ if __name__ == '__main__':
     env_scene2.close()
 
     scene3_env = r"scene3_builds/3DPos.exe"
-    env_scene3 = create_env(scene3_env, worker_id=5, time_scale=1.0, no_graphics=True)
+    env_scene3 = create_env(scene3_env, worker_id=5, time_scale=2.0, no_graphics=True)
 
     model_name = 'sac_model_scene3'
     save_path_scene3 = get_save_path(base_path, model_name)
