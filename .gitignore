@@ -2,3 +2,4 @@
 /logs_models/
 /trained_models/
 reward_log*
+slurm*
