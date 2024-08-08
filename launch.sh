@@ -1,13 +1,12 @@
 #!/bin/bash -l
 #SBATCH -p ecsstaff
 #SBATCH --account=ecsstaff
-#SBATCH --partition=a100
-#SBATCH -c 48
+#SBATCH --partition=gpu
 #SBATCH --nodes=1
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=shj1g20@soton.ac.uk
 #SBATCH --time=10:00:00
 
-conda activate challenge
+conda activate feasibility
 
-python feasibility_scripts/ppo_training.py
+python feasibility_scripts/simple_model_linux.py
