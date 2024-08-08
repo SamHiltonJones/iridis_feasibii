@@ -33,7 +33,7 @@ log_file_path = 'reward_log_simple_model_scene2.txt'
 
 df = parse_log_file(log_file_path)
 
-window_size = 50 
+window_size = 10 
 df['Moving_Avg_Reward'] = moving_average(df['Reward'], window_size)
 
 plt.figure(figsize=(12, 6))
