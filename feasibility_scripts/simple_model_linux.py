@@ -52,13 +52,17 @@ class RewardLoggingCallback(BaseCallback):
         return True
 
 class LearningRateSchedulerCallback(BaseCallback):
-    def __init__(self, initial_lr, factor, patience, verbose=0):
+    def __init__(self, initial_lr, factor, patience, min_lr, verbose=0):
         super(LearningRateSchedulerCallback, self).__init__(verbose)
         self.initial_lr = initial_lr
         self.factor = factor
         self.patience = patience
+        self.min_lr = min_lr
         self.best_mean_reward = -np.inf
         self.num_no_improvement = 0
+
+    def _on_training_start(self) -> None:
+        self.optimizer = self.model.policy.optimizer
 
     def _on_step(self) -> bool:
         mean_reward = safe_mean([ep_info["r"] for ep_info in self.locals["infos"] if "r" in ep_info])
@@ -70,9 +74,10 @@ class LearningRateSchedulerCallback(BaseCallback):
             self.num_no_improvement += 1
 
         if self.num_no_improvement >= self.patience:
-            new_lr = self.factor * self.locals["optimizer"].param_groups[0]["lr"]
+            new_lr = max(self.factor * self.optimizer.param_groups[0]["lr"], self.min_lr)
             print(f"Reducing learning rate to {new_lr}")
-            self.model.learning_rate = new_lr
+            for param_group in self.optimizer.param_groups:
+                param_group["lr"] = new_lr
             self.num_no_improvement = 0
 
         return True
@@ -80,7 +85,7 @@ class LearningRateSchedulerCallback(BaseCallback):
 if __name__ == '__main__':
     n_envs = 1
 
-    scene1_env = r"/mainfs/lyceum/shj1g20/iridis_feasibility/scene2_linux/scene2_linux.x86_64"
+    scene1_env = r"scene2_linux/scene2_linux.x86_64"
     def make_env_scene1(worker_id):
         return lambda: create_env(scene1_env, worker_id, time_scale=5.0, no_graphics=True)
 
@@ -101,7 +106,7 @@ if __name__ == '__main__':
     tensorboard_log_path_scene1 = get_save_path("./logs_graphs", model_name)
     reward_logging_callback_scene1 = RewardLoggingCallback(log_interval=1000, log_file=f'reward_log_{model_name}.txt')
 
-    lr_scheduler_callback = LearningRateSchedulerCallback(initial_lr=1e-4, factor=0.1, patience=5)
+    lr_scheduler_callback = LearningRateSchedulerCallback(initial_lr=1e-4, factor=0.1, patience=30000, min_lr=1e-6)
 
     device = th.device("cuda" if th.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
