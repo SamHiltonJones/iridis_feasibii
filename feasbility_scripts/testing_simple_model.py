@@ -4,7 +4,7 @@ from gym_unity.envs import UnityToGymWrapper
 from mlagents_envs.environment import UnityEnvironment
 from mlagents_envs.side_channel.engine_configuration_channel import EngineConfigurationChannel
 
-env_name = r"c:\Users\samhi\scene2_builds"
+env_name = r"scene2_builds\3DPos.exe"
 
 channel = EngineConfigurationChannel()
 unity_env = UnityEnvironment(env_name, side_channels=[channel])
@@ -14,7 +14,7 @@ env = UnityToGymWrapper(unity_env)
 policy_kwargs = dict(activation_fn=th.nn.ReLU,
                      net_arch=[dict(pi=[64, 64], vf=[64, 64])])
 
-model = PPO.load(r"logs_models/simple_model_scene2_08082024_v2/simple_model_scene2_200000_steps.zip", env=env)
+model = PPO.load(r"trained_models\simple_model_scene2_08082024_v1.zip", env=env)
 
 model.set_env(env)
 

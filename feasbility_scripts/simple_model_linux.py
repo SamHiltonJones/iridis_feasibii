@@ -53,7 +53,7 @@ class RewardLoggingCallback(BaseCallback):
 if __name__ == '__main__':
     n_envs = 1
 
-    scene1_env = r"C:\iridis_feasibility\scene2_linux\scene2_linux.x86_64"
+    scene1_env = r"scene2_linux\scene2_linux.x86_64"
     def make_env_scene1(worker_id):
         return lambda: create_env(scene1_env, worker_id, time_scale=5.0, no_graphics=True)
 

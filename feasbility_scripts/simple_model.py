@@ -55,7 +55,7 @@ if __name__ == '__main__':
 
     scene1_env = r"scene2_builds/3DPos.exe"
     def make_env_scene1(worker_id):
-        return lambda: create_env(scene1_env, worker_id, time_scale=5.0, no_graphics=True) 
+        return lambda: create_env(scene1_env, worker_id, time_scale=10.0, no_graphics=True) 
 
     env_fns_scene1 = [make_env_scene1(i) for i in range(n_envs)]
     env_scene1 = SubprocVecEnv(env_fns_scene1)
@@ -66,17 +66,25 @@ if __name__ == '__main__':
 
     model_name = 'simple_model_scene2'
     save_path_scene1 = get_save_path(base_path, model_name)
-    checkpoint_callback_scene1 = CheckpointCallback(save_freq=50000, save_path=save_path_scene1, name_prefix=model_name)  
+    checkpoint_callback_scene1 = CheckpointCallback(save_freq=200000, save_path=save_path_scene1, name_prefix=model_name)  
 
     policy_kwargs = dict(activation_fn=th.nn.ReLU,
-                         net_arch=[dict(pi=[64, 64], vf=[64, 64])]) 
+                         net_arch=[dict(pi=[128, 256, 256, 128], vf=[128, 256, 256, 128])]) 
 
     tensorboard_log_path_scene1 = get_save_path("./logs_graphs", model_name)
     reward_logging_callback_scene1 = RewardLoggingCallback(log_interval=1000, log_file=f'reward_log_{model_name}.txt')  
     model = PPO("MlpPolicy", env_scene1, verbose=2, tensorboard_log=tensorboard_log_path_scene1, policy_kwargs=policy_kwargs, learning_rate=1e-4, batch_size=256)  # Adjusted hyperparameters
 
-    model.learn(total_timesteps=500000, reset_num_timesteps=True, tb_log_name="train_scene2", callback=[checkpoint_callback_scene1, reward_logging_callback_scene1])  # Fewer steps for quick testing
+    model.learn(total_timesteps=1, reset_num_timesteps=True, tb_log_name="train_scene2", callback=[checkpoint_callback_scene1, reward_logging_callback_scene1])  # Fewer steps for quick testing
 
     final_model_path_scene1 = get_save_path(trained_models_path, model_name, trained_path=True)
+    model.save(final_model_path_scene1)
+
+    model = PPO.load("trained_models\simple_model_scene2_08082024_v1.zip", env=env_scene1, tensorboard_log=tensorboard_log_path_scene1, policy_kwargs=policy_kwargs, verbose=2, learning_rate=1e-5, batch_size=256)
+    
+    reward_logging_callback_scene2 = RewardLoggingCallback(log_interval=1000, log_file=f'reward_log_{model_name}.txt')
+
+    model.learn(total_timesteps=500000, reset_num_timesteps=False, tb_log_name="finetune_scene2", callback=[checkpoint_callback_scene1, reward_logging_callback_scene2])
+    
     model.save(final_model_path_scene1)
     env_scene1.close()
