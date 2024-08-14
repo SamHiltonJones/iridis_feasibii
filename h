@@ -10,3 +10,4 @@
 conda activate feasibility
 
 python feasibility_scripts/simple_model_linux.py
+
